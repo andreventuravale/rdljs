@@ -1,0 +1,22 @@
+/*
+CSS reset of HTML plugin
+*/
+
+.rdl-report {
+    /*background: teal;*/
+}
+
+.rdl-page {
+    /*background: red;*/
+}
+
+.rdl-textbox {
+    overflow: hidden;
+}
+
+.rdl-paragraph {
+    padding: 0 0 0 0;
+    margin: 0 0 0 0;
+    font-family: arial;
+    font-size: 10pt;
+}
