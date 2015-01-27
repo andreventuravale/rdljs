@@ -23,7 +23,7 @@ var $renderers = {};
 
     style: function () {
 
-        return (this._style = this._style || (function () {
+        return this._style = this._style || function () {
 
             var node = this.dom.find("> rdl\\:Style");
 
@@ -55,7 +55,7 @@ var $renderers = {};
 
             return data;
 
-        }).delegateTo(this)());
+        }.call(this);
     }
 });
 
@@ -195,14 +195,14 @@ RdlReportItem.create = function (body, dom) {
 
     embeddedImage: function () {
 
-        return this.embeddedImage.field = this.embeddedImage.field || (function () {
+        return this._embeddedImage = this._embeddedImage || function () {
 
             var dom = this.container.dom.closest("rdl\\:Report")
                 .find("rdl\\:EmbeddedImage[Name='" + this.value() + "']");
 
             return new RdlEmbeddedImage().init(this, dom);
 
-        }.delegateTo(this))();
+        }.call(this);
     },
 
     sizing: function () { return this.dom.find("> rdl\\:Sizing").html(); },
