@@ -20,11 +20,18 @@ HtmlRenderer.prototype = Renderer.extend({
             };
         } else {
             var left = 0;
-            var top = element.container.section.page.header.height().toPixels();
-            return {
-                left: left,
-                top: top
-            };
+			var top = 0;
+			try {
+				if (element.container.section) {
+					top += element.container.section.page.header.height().toPixels()
+				}
+				return {
+					left: left,
+					top: top
+				};
+			} catch (e) {
+				debugger
+			}
         }
     },
 
@@ -364,6 +371,21 @@ HtmlRenderer.prototype = Renderer.extend({
     },
 
     endImage: function (element) {
+    },
+	
+    beginColumnSpan: function (element) {
+
+        if (element.container instanceof RdlTablixCell) {
+
+			element.container.node.attr("colspan", element.span());
+			
+        } else {
+
+			throw new "not implemented";
+        }
+    },
+
+    endColumnSpan: function (element) {
     }
 });
 

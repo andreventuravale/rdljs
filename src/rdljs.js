@@ -13,13 +13,13 @@ var $renderers = {};
 
 (RdlStyleableElement = function () { }).prototype = RdlElement.extend({
 
-    left: function () { return this.dom.find("> rdl\\:Left").html(); },
+    left: function () { return this.dom.find("> rdl\\:Left").html() || ""; },
 
-    top: function () { return this.dom.find("> rdl\\:Top").html(); },
+    top: function () { return this.dom.find("> rdl\\:Top").html() || ""; },
 
-    width: function () { return this.dom.find("> rdl\\:Width").html(); },
+    width: function () { return this.dom.find("> rdl\\:Width").html() || ""; },
 
-    height: function () { return this.dom.find("> rdl\\:Height").html(); },
+    height: function () { return this.dom.find("> rdl\\:Height").html() || ""; },
 
     style: function () {
 
@@ -79,6 +79,7 @@ RdlReportItem.create = function (body, dom) {
     else if (dom.is("rdl\\:Line")) return new RdlLine().init(body, dom);
     else if (dom.is("rdl\\:Tablix")) return new RdlTablix().init(body, dom);
     else if (dom.is("rdl\\:Image")) return new RdlImage().init(body, dom);
+    else if (dom.is("rdl\\:ColSpan")) return new RdlColumnSpan().init(body, dom);
 
     throw 'not implemented item: ' + dom.get(0).tagName;
 };
@@ -197,6 +198,7 @@ RdlReportItem.create = function (body, dom) {
 
         return this._embeddedImage = this._embeddedImage || function () {
 
+			// TODO: create embeddedImages in RdlReport prototype
             var dom = this.container.dom.closest("rdl\\:Report")
                 .find("rdl\\:EmbeddedImage[Name='" + this.value() + "']");
 
@@ -216,6 +218,25 @@ RdlReportItem.create = function (body, dom) {
         renderer.beginImage(this);
 
         renderer.endImage(this);
+
+        return this;
+    }
+});
+
+(RdlColumnSpan = function () { }).prototype = RdlReportItem.extend({
+
+    init: function () {
+        this.super.init.apply(this, arguments);
+        return this;
+    },
+
+    span: function () { return parseInt(this.dom.html() || "0"); },
+
+    load: function (renderer) {
+
+        renderer.beginColumnSpan(this);
+
+        renderer.endColumnSpan(this);
 
         return this;
     }
@@ -430,7 +451,7 @@ RdlReportItem.create = function (body, dom) {
         return this;
     },
 
-    height: function () { return this.dom.find("> rdl\\:Height").html(); },
+    height: function () { return this.dom.find("> rdl\\:Height").html() || ""; },
 
     loadContent: function (renderer) {
 
@@ -531,7 +552,7 @@ RdlReportItem.create = function (body, dom) {
 
     load: function (renderer) {
 
-        this.page = new RdlReportPage().init(this, this.dom.find("> rdl\\:Page"));
+		this.page = new RdlReportPage().init(this, this.dom.find("> rdl\\:Page"));
 
         this.body = new RdlReportBody().init(this, this.dom.find("> rdl\\:Body"));
 
@@ -613,11 +634,27 @@ RdlReportItem.create = function (body, dom) {
 
         renderer.beginReport(this);
 
-        this.dom
+        var sectionsDoms = this.dom.find("> rdl\\:ReportSections > rdl\\:ReportSection");
+		
+		if (sectionsDoms.length == 0) {
+		
+			var sectionDom = $("<rdl\:ReportSection></rdl\:ReportSection>").appendTo(this.dom);
+			
+			this.dom.find("> rdl\\:Body,> rdl\\:Page").appendTo(sectionDom);
 
-            .find("> rdl\\:ReportSections > rdl\\:ReportSection")
-
-            .each(function (i, element) {
+			//var pageDom = sectionDom.find("> rdl\\:Page");
+			
+			this.dom.find("> rdl\\:Width").appendTo(sectionDom);
+		
+			this.sections.push(
+				new RdlReportSection()
+					.init(this, sectionDom)
+					.load(renderer)
+			);
+			
+		} else {
+		
+            sectionsDoms.each(function (i, element) {
 
                 this.sections.push(
                     new RdlReportSection()
@@ -626,6 +663,7 @@ RdlReportItem.create = function (body, dom) {
                 );
 
             }.delegateTo(this));
+		}
 
         renderer.endReport(this);
 

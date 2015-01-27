@@ -24,16 +24,20 @@
         $(document).ready(function () {
 
             /* url that serves any RDLC XML */
-            $.get("reports/report1.rdlc").done(function (xml, status, xhr) {
+            $.get("reports/Catalog.rdlc").done(function (xml, status, xhr) {
 			
                 var report = rdl.makeReport(xhr.responseText);
 
                 report.dataResolver(function (dataSetName) {
+				
+				debugger
 
                     if (dataSetName == "DataSet1") {
 
                         return $.ajax({
-								url: "reports/report1.data",
+								url: "http://localhost:49602/api/query/",
+								method: "post",
+								data: "query=" + query,
 								beforeSend: function (xhr) {
 									xhr.overrideMimeType("application/json; charset=utf8");
 								}
