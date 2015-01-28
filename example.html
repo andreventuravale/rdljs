@@ -27,8 +27,8 @@
 	
 		//var report = "AlphabeticalListOfProductsReport.rdlc";
 		//var report = "Catalog.rdlc";
-		//var report = "CustomersLabelsReport.rdlc";
-		var report = "Invoice.rdlc";
+		var report = "CustomersLabelsReport.rdlc";
+		//var report = "Invoice.rdlc";
 
         $(document).ready(function () {
 
@@ -40,14 +40,15 @@
                 report.dataResolver(function (dataSetName, inputData) {
 				
 					var dataSet = this.report.findDataSet(dataSetName);
-
+					
+					debugger
 					return $.ajax({
 						url: "http://localhost/NorthwindApi/query",
 						method: "post",
 						data: { 
 							type: dataSet.query.commandType(), 
 							text: dataSet.query.commandText(),
-							data: inputData
+							inputData: inputData
 						},
 						beforeSend: function (xhr) {
 							xhr.overrideMimeType("application/json; charset=utf8");
