@@ -35,6 +35,20 @@ HtmlRenderer.prototype = Renderer.extend({
         }
     },
 
+    sizeFor: function (element) {
+        if (element.container instanceof RdlReportPageHeader) {
+            return {
+                width: 0,
+                height: 0
+            };
+        } else {
+			return {
+                width: element.container.section.width(),
+                height: element.container.height()
+			};
+        }
+    },
+
     beginReport: function (element) {
 
         element.node = $("<div></div>")
@@ -222,14 +236,15 @@ HtmlRenderer.prototype = Renderer.extend({
     beginLine: function (element) {
 
         var origin = this.originOf(element);
-
+		var size = this.sizeFor(element);
+		
         element.node = d3.select(element.container.node.get(0))
             .append("svg")
                 .style("position", "absolute")
                 //.style("left", "0")
                 //.style("top", "0")
-                .style("width", element.container.section.width())
-                .style("height", element.container.height())
+                .style("width", size.width)
+                .style("height", size.height)
                 .append("line")
                     .attr("x1", element.left().toPixels())
                     .attr("y1", origin.top + element.top().toPixels())

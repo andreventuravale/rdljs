@@ -392,7 +392,9 @@ RdlReportItem.create = function (body, dom) {
 
         this.myBody = new RdlTablixBody().init(this, this.dom.find("> rdl\\:TablixBody")).load(renderer);
 
-        var dataSet = this.container.section.report.dataResolver.resolve(this.dataSetName());
+		var report = this.container.section.report;
+		
+        var dataSet = report.dataResolver.resolve(this.dataSetName(), report.inputData());
 
         if (rdl.isPromise(dataSet)) {
 
@@ -578,24 +580,24 @@ RdlReportItem.create = function (body, dom) {
         return this;
     },
 
-    resolve: function (dataSetName) {
+    resolve: function (dataSetName, inputData) {
 
         var deferred = $.Deferred();
 
-        var data = this.callback(dataSetName);
+        var resultData = this.callback(dataSetName, inputData);
 
-        if (data) {
+        if (resultData) {
 
-            if (rdl.isPromise(data)) {
+            if (rdl.isPromise(resultData)) {
 
-                data.done(function (result) {
+                resultData.done(function (asyncResultData) {
 
-                    deferred.resolve(result);
+                    deferred.resolve(asyncResultData);
                 });
 
             } else {
 
-                deferred.resolve(data);
+                deferred.resolve(resultData);
             }
         }
 
@@ -603,11 +605,91 @@ RdlReportItem.create = function (body, dom) {
     }
 };
 
+(RdlDataSetQuery = function () { }).prototype = RdlElement.extend({
+
+    init: function (dataSet, dom) {
+		this.dataSet = dataSet;
+        this.dom = dom;
+        return this;
+    },
+	
+    commandText: function () { return this.dom.find("> rdl\\:CommandText").html(); },
+
+    commandType: function () { return this.dom.find("> rdl\\:CommandType").html(); },
+
+    dataSourceName: function () { return this.dom.find("> rdl\\:DataSourceName").html(); },
+
+    load: function () {
+	
+        return this;
+    }
+});
+
+(RdlDataSet = function () { }).prototype = RdlElement.extend({
+
+    init: function (report, dom) {
+		this.report = report;
+        this.dom = dom;
+        return this;
+    },
+	
+    load: function () {
+
+		this.query = new RdlDataSetQuery().init(this, this.dom.find("> rdl\\:Query")).load();
+
+        return this;
+    }	
+});
+
+(RdlValue = function () { }).prototype = RdlValue.extend({
+    
+	init: function (dom) {
+        this.dom = dom;
+        return this;
+    },
+
+    isNil: function () { return this.dom.is("[xsi\\:nil='true']"); }
+});
+
+(RdlParameter = function () { }).prototype = RdlElement.extend({
+
+    init: function (report, dom, index) {
+		this.report = report;
+        this.dom = dom;
+        this.index = index;
+        return this;
+    },
+
+    name: function () { return this.dom.attr("Name"); },
+
+    allowBlank: function () { return this.dom.find("> rdl\\:AllowBlank").html() == "true"; },
+
+    dataType: function () { return this.dom.find("> rdl\\:DataType").html(); },
+
+    defaultValues: function () { 
+		
+		return this._defaultValues || (this._defaultValues = function () {
+
+			return this.dom.find("> rdl\\:DefaultValue > rdl\\:Values > rdl\\:Value").map(function (i, element) {
+
+				return new RdlValue().init($(element));
+	
+			}.delegateTo(this));
+			
+		}.call(this));
+	},
+
+    nullable: function () { return this.dom.find("> rdl\\:Nullable").html(); },
+
+    value: function (value) { return arguments.length ? (this._value = value) : this._value; }
+});
+
 (RdlReport = function () { }).prototype = RdlElement.extend({
 
     init: function (dom) {
         this.dom = dom;
         this.sections = [];
+		this.dataSets = {};
         return this;
     },
 
@@ -620,6 +702,16 @@ RdlReportItem.create = function (body, dom) {
         }).delegateTo(this).invokeLater();
     },
 
+    findDataSet: function (dataSetName) {
+
+        var dom = this.dom.find("> rdl\\:DataSets > rdl\\:DataSet[Name='" + dataSetName + "']");
+		
+		if (!dom.length)
+			throw 'dataset not found: ' + dataSetName;
+			
+		return this.dataSets[dataSetName] || (this.dataSets[dataSetName] = new RdlDataSet().init(this, dom).load());
+    },
+
     dataResolver: function (callback) {
 
         if (callback)
@@ -628,6 +720,40 @@ RdlReportItem.create = function (body, dom) {
             return this.dataResolver;
     },
 
+	findParameter: function (name) {
+
+		return this._parameters[name];
+    },
+	
+	inputParameters: function () {
+
+		return this._parameters || (this._parameters = function () {
+
+			this._parameters = [];
+		
+			this.dom.find("> rdl\\:ReportParameters > rdl\\:ReportParameter").map(function (i, element) {
+			
+				this._parameters[i] = new RdlParameter().init(this, $(element), i);
+				this._parameters[this._parameters[i].name()] = this._parameters[i];
+
+			}.delegateTo(this));
+			
+			return this._parameters;
+			
+		}.call(this));
+    },
+	
+	inputData: function () {
+	
+		var data = {};
+
+		$(this._parameters).each(function (i, param) {
+			data[param.name()] = param.value();
+		});
+		
+		return data;
+    },
+	
     load: function (renderer) {
 
         this.id = this.dom.find("> rd\\:ReportID").html();
