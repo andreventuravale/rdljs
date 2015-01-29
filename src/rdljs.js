@@ -228,7 +228,7 @@ RdlReportItem.create = function (body, dom) {
 
         return this._embeddedImage = this._embeddedImage || function () {
 
-			// TODO: create embeddedImages in RdlReport prototype
+            // TODO: create embeddedImages in RdlReport prototype
             var dom = this.container.dom.closest("rdl\\:Report")
                 .find("rdl\\:EmbeddedImage[Name='" + this.value() + "']");
 
@@ -298,8 +298,6 @@ RdlReportItem.create = function (body, dom) {
         this.contents = [];
         return this;
     },
-
-    //height: function () { return this.dom.find("> rdl\\:Height").html(); },
 
     load: function (renderer) {
 
@@ -422,8 +420,8 @@ RdlReportItem.create = function (body, dom) {
 
         this.myBody = new RdlTablixBody().init(this, this.dom.find("> rdl\\:TablixBody")).load(renderer);
 
-		var report = this.container.section.report;
-		
+        var report = this.container.section.report;
+        
         var dataSet = report.dataResolver.resolve(this.dataSetName(), report.inputData());
 
         if (rdl.isPromise(dataSet)) {
@@ -555,7 +553,7 @@ RdlReportItem.create = function (body, dom) {
 
     load: function (renderer) {
 
-		this.page = new RdlReportPage().init(this, this.dom.find("> rdl\\:Page"));
+        this.page = new RdlReportPage().init(this, this.dom.find("> rdl\\:Page"));
 
         this.body = new RdlReportBody().init(this, this.dom.find("> rdl\\:Body"));
 
@@ -609,11 +607,11 @@ RdlReportItem.create = function (body, dom) {
 (RdlDataSetQuery = function () { }).prototype = RdlElement.extend({
 
     init: function (dataSet, dom) {
-		this.dataSet = dataSet;
+        this.dataSet = dataSet;
         this.dom = dom;
         return this;
     },
-	
+    
     commandText: function () { return this.dom.find("> rdl\\:CommandText").html(); },
 
     commandType: function () { return this.dom.find("> rdl\\:CommandType").html(); },
@@ -621,7 +619,7 @@ RdlReportItem.create = function (body, dom) {
     dataSourceName: function () { return this.dom.find("> rdl\\:DataSourceName").html(); },
 
     load: function () {
-	
+    
         return this;
     }
 });
@@ -629,22 +627,22 @@ RdlReportItem.create = function (body, dom) {
 (RdlDataSet = function () { }).prototype = RdlElement.extend({
 
     init: function (report, dom) {
-		this.report = report;
+        this.report = report;
         this.dom = dom;
         return this;
     },
-	
+    
     load: function () {
 
-		this.query = new RdlDataSetQuery().init(this, this.dom.find("> rdl\\:Query")).load();
+        this.query = new RdlDataSetQuery().init(this, this.dom.find("> rdl\\:Query")).load();
 
         return this;
-    }	
+    }    
 });
 
 (RdlValue = function () { }).prototype = RdlValue.extend({
     
-	init: function (dom) {
+    init: function (dom) {
         this.dom = dom;
         return this;
     },
@@ -655,7 +653,7 @@ RdlReportItem.create = function (body, dom) {
 (RdlParameter = function () { }).prototype = RdlElement.extend({
 
     init: function (report, dom, index) {
-		this.report = report;
+        this.report = report;
         this.dom = dom;
         this.index = index;
         return this;
@@ -668,17 +666,17 @@ RdlReportItem.create = function (body, dom) {
     dataType: function () { return this.dom.find("> rdl\\:DataType").html(); },
 
     defaultValues: function () { 
-		
-		return this._defaultValues || (this._defaultValues = function () {
+        
+        return this._defaultValues || (this._defaultValues = function () {
 
-			return this.dom.find("> rdl\\:DefaultValue > rdl\\:Values > rdl\\:Value").map(function (i, element) {
+            return this.dom.find("> rdl\\:DefaultValue > rdl\\:Values > rdl\\:Value").map(function (i, element) {
 
-				return new RdlValue().init($(element));
-	
-			}.delegateTo(this));
-			
-		}.call(this));
-	},
+                return new RdlValue().init($(element));
+    
+            }.delegateTo(this));
+            
+        }.call(this));
+    },
 
     nullable: function () { return this.dom.find("> rdl\\:Nullable").html(); },
 
@@ -690,7 +688,7 @@ RdlReportItem.create = function (body, dom) {
     init: function (dom) {
         this.dom = dom;
         this.sections = [];
-		this.dataSets = {};
+        this.dataSets = {};
         return this;
     },
 
@@ -706,11 +704,11 @@ RdlReportItem.create = function (body, dom) {
     findDataSet: function (dataSetName) {
 
         var dom = this.dom.find("> rdl\\:DataSets > rdl\\:DataSet[Name='" + dataSetName + "']");
-		
-		if (!dom.length)
-			throw 'dataset not found: ' + dataSetName;
-			
-		return this.dataSets[dataSetName] || (this.dataSets[dataSetName] = new RdlDataSet().init(this, dom).load());
+        
+        if (!dom.length)
+            throw 'dataset not found: ' + dataSetName;
+            
+        return this.dataSets[dataSetName] || (this.dataSets[dataSetName] = new RdlDataSet().init(this, dom).load());
     },
 
     dataResolver: function (callback) {
@@ -721,40 +719,40 @@ RdlReportItem.create = function (body, dom) {
             return this.dataResolver;
     },
 
-	findParameter: function (name) {
+    findParameter: function (name) {
 
-		return this._parameters[name];
+        return this._parameters[name];
     },
-	
-	inputParameters: function () {
+    
+    inputParameters: function () {
 
-		return this._parameters || (this._parameters = function () {
+        return this._parameters || (this._parameters = function () {
 
-			this._parameters = [];
-		
-			this.dom.find("> rdl\\:ReportParameters > rdl\\:ReportParameter").map(function (i, element) {
-			
-				this._parameters[i] = new RdlParameter().init(this, $(element), i);
-				this._parameters[this._parameters[i].name()] = this._parameters[i];
+            this._parameters = [];
+        
+            this.dom.find("> rdl\\:ReportParameters > rdl\\:ReportParameter").map(function (i, element) {
+            
+                this._parameters[i] = new RdlParameter().init(this, $(element), i);
+                this._parameters[this._parameters[i].name()] = this._parameters[i];
 
-			}.delegateTo(this));
-			
-			return this._parameters;
-			
-		}.call(this));
+            }.delegateTo(this));
+            
+            return this._parameters;
+            
+        }.call(this));
     },
-	
-	inputData: function () {
-	
-		var data = {};
+    
+    inputData: function () {
+    
+        var data = {};
 
-		$(this._parameters).each(function (i, param) {
-			data[param.name()] = param.value();
-		});
-		
-		return data;
+        $(this._parameters).each(function (i, param) {
+            data[param.name()] = param.value();
+        });
+        
+        return data;
     },
-	
+    
     load: function (renderer) {
 
         this.id = this.dom.find("> rd\\:ReportID").html();
@@ -762,23 +760,23 @@ RdlReportItem.create = function (body, dom) {
         renderer.beginReport(this);
 
         var sectionsDoms = this.dom.find("> rdl\\:ReportSections > rdl\\:ReportSection");
-		
-		if (sectionsDoms.length == 0) {
-		
-			var sectionDom = $("<rdl\:ReportSection></rdl\:ReportSection>").appendTo(this.dom);
-			
-			this.dom.find("> rdl\\:Body,> rdl\\:Page").appendTo(sectionDom);
-		
-			this.dom.find("> rdl\\:Width").appendTo(sectionDom);
-		
-			this.sections.push(
-				new RdlReportSection()
-					.init(this, sectionDom)
-					.load(renderer)
-			);
-			
-		} else {
-		
+        
+        if (sectionsDoms.length == 0) {
+        
+            var sectionDom = $("<rdl\:ReportSection></rdl\:ReportSection>").appendTo(this.dom);
+            
+            this.dom.find("> rdl\\:Body,> rdl\\:Page").appendTo(sectionDom);
+        
+            this.dom.find("> rdl\\:Width").appendTo(sectionDom);
+        
+            this.sections.push(
+                new RdlReportSection()
+                    .init(this, sectionDom)
+                    .load(renderer)
+            );
+            
+        } else {
+        
             sectionsDoms.each(function (i, element) {
 
                 this.sections.push(
@@ -788,7 +786,7 @@ RdlReportItem.create = function (body, dom) {
                 );
 
             }.delegateTo(this));
-		}
+        }
 
         renderer.endReport(this);
 
