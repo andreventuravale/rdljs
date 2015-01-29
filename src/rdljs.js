@@ -41,6 +41,7 @@ var $renderers = {};
 
                 , fontFamily: node.find("> rdl\\:FontFamily").html()
                 , fontSize: node.find("> rdl\\:FontSize").html()
+                , fontWeight: node.find("> rdl\\:FontWeight").html()
                 , verticalAlign: node.find("> rdl\\:VerticalAlign").html()
 
                 , padding: {
@@ -83,6 +84,35 @@ RdlReportItem.create = function (body, dom) {
 
     throw 'not implemented item: ' + dom.get(0).tagName;
 };
+
+(RdlContainer = function () { }).prototype = RdlStyleableElement.extend({
+
+    init: function () {
+        this.items = [];
+        return this;
+    },
+
+    height: function () { return this.dom.find("> rdl\\:Height").html() || ""; },
+
+    loadContent: function (renderer) {
+
+        this.dom
+
+            .find("> rdl\\:ReportItems > *")
+
+            .each(function (i, element) {
+
+                var item = RdlReportItem.create(this, $(element));
+
+                this.items.push(item);
+
+                item.load(renderer);
+
+            }.delegateTo(this));
+
+        return this;
+    }
+});
 
 (RdlTextRun = function () { }).prototype = RdlStyleableElement.extend({
     init: function (paragraph, dom) {
@@ -259,7 +289,7 @@ RdlReportItem.create = function (body, dom) {
     }
 });
 
-(RdlTablixCell = function () { }).prototype = RdlElement.extend({
+(RdlTablixCell = function () { }).prototype = RdlContainer.extend({
 
     init: function (row, dom, index) {
         this.row = row;
@@ -443,35 +473,6 @@ RdlReportItem.create = function (body, dom) {
             }.delegateTo(this));
 
         }.delegateTo(this));
-    }
-});
-
-(RdlContainer = function () { }).prototype = RdlElement.extend({
-
-    init: function () {
-        this.items = [];
-        return this;
-    },
-
-    height: function () { return this.dom.find("> rdl\\:Height").html() || ""; },
-
-    loadContent: function (renderer) {
-
-        this.dom
-
-            .find("> rdl\\:ReportItems > *")
-
-            .each(function (i, element) {
-
-                var item = RdlReportItem.create(this, $(element));
-
-                this.items.push(item);
-
-                item.load(renderer);
-
-            }.delegateTo(this));
-
-        return this;
     }
 });
 
@@ -760,6 +761,7 @@ RdlReportItem.create = function (body, dom) {
 
         renderer.beginReport(this);
 
+        debugger
         var sectionsDoms = this.dom.find("> rdl\\:ReportSections > rdl\\:ReportSection");
 		
 		if (sectionsDoms.length == 0) {

@@ -12,6 +12,22 @@ HtmlRenderer.prototype = Renderer.extend({
         return this;
     },
 
+    applyStyle: function (element) {
+
+        element.node
+            .css("color", element.style().color)
+            .css("background", element.style().backgroundColor)
+            .css("font-family", element.style().fontFamily)
+            .css("font-size", element.style().fontSize)
+            .css("font-weight", element.style().fontWeight)
+            .css("border", element.style().border.width + " " + element.style().border.style + " " + element.style().border.color)
+            .css("color", element.style().color)
+            .css("padding-left", element.style().padding.left)
+            .css("padding-top", element.style().padding.top)
+            .css("padding-right", element.style().padding.right)
+            .css("padding-bottom", element.style().padding.bottom);
+    },
+
     originOf: function (element) {
         if (element.container instanceof RdlReportPageHeader) {
             return {
@@ -20,18 +36,18 @@ HtmlRenderer.prototype = Renderer.extend({
             };
         } else {
             var left = 0;
-			var top = 0;
-			try {
-				if (element.container.section) {
-					top += element.container.section.page.header.height().toPixels()
-				}
-				return {
-					left: left,
-					top: top
-				};
-			} catch (e) {
-				debugger
-			}
+            var top = 0;
+            try {
+                if (element.container.section) {
+                    top += element.container.section.page.header.height().toPixels()
+                }
+                return {
+                    left: left,
+                    top: top
+                };
+            } catch (e) {
+                debugger
+            }
         }
     },
 
@@ -42,10 +58,10 @@ HtmlRenderer.prototype = Renderer.extend({
                 height: 0
             };
         } else {
-			return {
+            return {
                 width: element.container.section.width(),
                 height: element.container.height()
-			};
+            };
         }
     },
 
@@ -100,17 +116,12 @@ HtmlRenderer.prototype = Renderer.extend({
     },
 
     endBody: function (element) {
-
-
     },
 
     beginPage: function (element) {
-
     },
 
     endPage: function (element) {
-
-
     },
 
     beginPageHeader: function (element) {
@@ -126,8 +137,6 @@ HtmlRenderer.prototype = Renderer.extend({
     },
 
     endPageHeader: function (element) {
-
-
     },
 
     beginTextBox: function (element) {
@@ -137,12 +146,6 @@ HtmlRenderer.prototype = Renderer.extend({
             .appendTo(element.container.node);
 
         if (element.container instanceof RdlTablixCell) {
-
-            element.node
-                .css("padding-left", element.style().padding.left.toPixels())
-                .css("padding-top", element.style().padding.top.toPixels())
-                .css("padding-right", element.style().padding.right.toPixels())
-                .css("padding-bottom", element.style().padding.bottom.toPixels());
 
             var w = element.container.row.tablixBody.columns[element.container.index].width().toPixels();
             var h = element.container.row.height().toPixels();
@@ -160,16 +163,10 @@ HtmlRenderer.prototype = Renderer.extend({
                 .css("left", element.left())
                 .css("top", origin.top + element.top().toPixels())
                 .css("width", element.width())
-                .css("height", element.height())
-                .css("padding-left", element.style().padding.left)
-                .css("padding-top", element.style().padding.top)
-                .css("padding-right", element.style().padding.right)
-                .css("padding-bottom", element.style().padding.bottom);
+                .css("height", element.height());
         }
 
-        element.node
-            .css("color", element.style().color)
-            .css("background", element.style().backgroundColor);
+        this.applyStyle(element);
     },
 
     endTextBox: function (element) {
@@ -182,6 +179,8 @@ HtmlRenderer.prototype = Renderer.extend({
                 .addClass("rdl rdl-paragraph")
                 .css("text-align", element.style().textAlign)
                 .appendTo(element.textBox.node);
+
+        this.applyStyle(element);
     },
 
     endParagraph: function (element) {
@@ -204,16 +203,12 @@ HtmlRenderer.prototype = Renderer.extend({
             $("<span></span>")
                 .addClass("rdl rdl-textrun")
                 .appendTo(element.paragraph.node)
-                    .css("color", element.style().color)
-                    .css("background", element.style().backgroundColor)
-                    .css("font-family", element.style().fontFamily)
-                    .css("font-size", element.style().fontSize)
-                    .css("color", element.style().color)
                     .html(html);
+
+        this.applyStyle(element);
     },
 
     endTextRun: function (element) {
-
     },
 
     beginRectangle: function (element) {
@@ -227,8 +222,9 @@ HtmlRenderer.prototype = Renderer.extend({
                 .css("left", element.left())
                 .css("top", origin.top + element.top().toPixels())
                 .css("width", element.width())
-                .css("height", element.height())
-                .css("background", element.style().backgroundColor);
+                .css("height", element.height());
+
+        this.applyStyle(element);
     },
 
     endRectangle: function (element) { },
@@ -236,8 +232,8 @@ HtmlRenderer.prototype = Renderer.extend({
     beginLine: function (element) {
 
         var origin = this.originOf(element);
-		var size = this.sizeFor(element);
-		
+        var size = this.sizeFor(element);
+
         element.node = d3.select(element.container.node.get(0))
             .append("svg")
                 .style("position", "absolute")
@@ -271,18 +267,12 @@ HtmlRenderer.prototype = Renderer.extend({
                 .css("left", element.left())
                 .css("top", origin.top + element.top().toPixels())
                 .css("width", element.width())
-                .css("height", element.height())
-                //.css("color", element.style().color)
-                .css("background", element.style().backgroundColor)
-        //.css("padding-left", element.style().padding.left)
-        //.css("padding-top", element.style().padding.top)
-        //.css("padding-right", element.style().padding.right)
-        //.css("padding-bottom", element.style().padding.bottom)
-        ;
+                .css("height", element.height());
+
+        this.applyStyle(element);
     },
 
     endTablix: function (element) {
-
     },
 
     beginTablixBody: function (element) {
@@ -291,8 +281,6 @@ HtmlRenderer.prototype = Renderer.extend({
     },
 
     endTablixBody: function (element) {
-
-
     },
 
     beginTablixColumn: function (element) {
@@ -303,8 +291,6 @@ HtmlRenderer.prototype = Renderer.extend({
     },
 
     endTablixColumn: function (element) {
-
-
     },
 
     beginTablixRow: function (element) {
@@ -316,19 +302,17 @@ HtmlRenderer.prototype = Renderer.extend({
     },
 
     endTablixRow: function (element) {
-
-
     },
 
     beginTablixCell: function (element) {
 
         element.node = $("<td></td>")
             .appendTo(element.row.node);
+
+        this.applyStyle(element);
     },
 
     endTablixCell: function (element) {
-
-
     },
 
     beginTablixDataRow: function (element, rowIndex, row, data) {
@@ -374,29 +358,23 @@ HtmlRenderer.prototype = Renderer.extend({
             .css("left", element.left())
             .css("top", origin.top + element.top().toPixels())
             .css("width", element.width())
-            .css("height", element.height())
-            .css("padding-left", element.style().padding.left)
-            .css("padding-top", element.style().padding.top)
-            .css("padding-right", element.style().padding.right)
-            .css("padding-bottom", element.style().padding.bottom);
+            .css("height", element.height());
 
-        element.node
-            .css("color", element.style().color)
-            .css("background", element.style().backgroundColor);
+        this.applyStyle(element);
     },
 
     endImage: function (element) {
     },
-	
+
     beginColumnSpan: function (element) {
 
         if (element.container instanceof RdlTablixCell) {
 
-			element.container.node.attr("colspan", element.span());
-			
+            element.container.node.attr("colspan", element.span());
+
         } else {
 
-			throw new "not implemented";
+            throw new "not implemented";
         }
     },
 

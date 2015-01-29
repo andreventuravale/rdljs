@@ -4,9 +4,9 @@
     <title></title>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1, maximum-scale=1" />
-	
+
     <link type="text/css" rel="stylesheet" href="/src/rdljs.plugin.html.css" />
-	
+
 </head>
 <body>
 
@@ -18,67 +18,76 @@
     <script src="/src/rdljs.plugin.abstract.js"></script>
     <script src="/src/rdljs.js"></script>
     <script src="/src/rdljs.plugin.html.js"></script>
-	
-	<div data-role='input-container'>
-	</div>
-	<button data-role='trigger-load'>Load</div>
+
+    <select id="report">
+        <option value=""></option>
+        <option value="ReportWithCustomAssembly">ReportWithCustomAssembly</option>
+        <option value="OrdersWithDrillthrough">OrdersWithDrillthrough</option>
+        <option value="OrdersWithSubreport">OrdersWithSubreport</option>
+    </select>
+
+    <div data-role='input-container'>
+    </div>
+
+    <button data-role='trigger-load' style="display: none">Load</button>
 
     <script type="text/javascript">
-	
-		//var report = "AlphabeticalListOfProductsReport.rdlc";
-		//var report = "Catalog.rdlc";
-		var report = "CustomersLabelsReport.rdlc";
-		//var report = "Invoice.rdlc";
 
-        $(document).ready(function () {
+        $(document).on("change", "#report", function (e) {
 
-            /* url that serves any RDLC XML */
-            $.get("reports/" + report).done(function (xml, status, xhr) {
-			
+            var url = "reports/" + $("#report").val() + ".rdlc";
+
+            $.get(url).done(function (xml, status, xhr) {
+
                 var report = rdl.makeReport(xhr.responseText);
 
                 report.dataResolver(function (dataSetName, inputData) {
-				
-					var dataSet = this.report.findDataSet(dataSetName);
-					
-					debugger
-					return $.ajax({
-						url: "http://localhost/NorthwindApi/query",
-						method: "post",
-						data: { 
-							type: dataSet.query.commandType(), 
-							text: dataSet.query.commandText(),
-							inputData: inputData
-						},
-						beforeSend: function (xhr) {
-							xhr.overrideMimeType("application/json; charset=utf8");
-						}
-					});
+
+                    var dataSet = this.report.findDataSet(dataSetName);
+
+                    return $.ajax({
+                        url: "http://localhost/NorthwindApi/query",
+                        method: "post",
+                        data: {
+                            type: dataSet.query.commandType(),
+                            text: dataSet.query.commandText(),
+                            inputData: inputData
+                        },
+                        beforeSend: function (xhr) {
+                            xhr.overrideMimeType("application/json; charset=utf8");
+                        }
+                    });
                 });
 
                 var renderer = rdl.rendererFor("html");
 
-				$(report.inputParameters()).each(function (i, param) {
-				
-					$("<div><label></label><input /></div>")
-						.find("label")
-							.attr("for", param.name())
-							.text(param.name())
-						.end()
-						.find("input")
-							.attr("name", param.name())
-							.change(function (e) {
-								report.findParameter($(e.target).attr("name")).value($(e.target).val());
-							})
-						.end()
-						.attr("data-input-field", "true")
-						.appendTo("[data-role='input-container']")
-				});
-				
-				$(document).on("click", "[data-role='trigger-load']", function () {
-				
-					report.load(renderer);
-				});
+                $(report.inputParameters()).each(function (i, param) {
+
+                    $("<div><label></label><input /></div>")
+                        .find("label")
+                            .attr("for", param.name())
+                            .text(param.name())
+                        .end()
+                        .find("input")
+                            .attr("name", param.name())
+                            .change(function (e) {
+                                report.findParameter($(e.target).attr("name")).value($(e.target).val());
+                            })
+                        .end()
+                        .attr("data-input-field", "true")
+                        .appendTo("[data-role='input-container']")
+                });
+
+                $("[data-role='trigger-load']").show();
+
+                $(document).on("click", "[data-role='trigger-load']", function () {
+
+                    $("#report").remove();
+                    $("[data-role='input-container']").remove();
+                    $("[data-role='trigger-load']").remove();
+
+                    report.load(renderer);
+                });
             });
         });
     </script>
