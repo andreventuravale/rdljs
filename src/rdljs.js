@@ -761,7 +761,6 @@ RdlReportItem.create = function (body, dom) {
 
         renderer.beginReport(this);
 
-        debugger
         var sectionsDoms = this.dom.find("> rdl\\:ReportSections > rdl\\:ReportSection");
 		
 		if (sectionsDoms.length == 0) {
@@ -769,9 +768,7 @@ RdlReportItem.create = function (body, dom) {
 			var sectionDom = $("<rdl\:ReportSection></rdl\:ReportSection>").appendTo(this.dom);
 			
 			this.dom.find("> rdl\\:Body,> rdl\\:Page").appendTo(sectionDom);
-
-			//var pageDom = sectionDom.find("> rdl\\:Page");
-			
+		
 			this.dom.find("> rdl\\:Width").appendTo(sectionDom);
 		
 			this.sections.push(
