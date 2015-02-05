@@ -221,8 +221,13 @@ HtmlRenderer.prototype = Renderer.extend({
                 .css("position", "absolute")
                 .css("left", element.left())
                 .css("top", origin.top + element.top().toPixels())
-                .css("width", element.width())
-                .css("height", element.height());
+                .css("width", element.width() || "100%")
+                .css("height", element.height() || "100%");
+                
+        if(!element.width() && !element.height())
+            element.node.css("position", "relative");
+        else
+            element.node.css("position", "absolute");
 
         this.applyStyle(element);
     },

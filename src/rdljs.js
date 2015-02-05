@@ -452,7 +452,7 @@ RdlReportItem.create = function (body, dom) {
 
                 renderer.beginTablixDataRow(this, rowIndex, row, data);
 
-                $(this.columns).each(function (columnIndex, column) {
+                $(this.myBody.columns).each(function (columnIndex, column) {
 
                     renderer.beginTablixDataColumn(this, rowIndex, row, columnIndex, column, data);
 
