@@ -2,8 +2,8 @@
 
 TODO:
 
-[] - rewrite with TDD;
-[] - find good report samples for integrated tests;
+- [ ] rewrite with TDD;
+- [ ] find good report samples for integrated tests;
 
 ---
 
