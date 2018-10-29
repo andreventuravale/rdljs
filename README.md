@@ -1,4 +1,11 @@
-# rdljs
+# rdljs - ( deprecated due to lack of tests )
+
+TODO:
+
+[] - rewrite with TDD;
+[] - find good report samples for integrated tests;
+
+---
 
 A lightweight javascript library for Microsoft RDL/RDLC reporting rendering
 
